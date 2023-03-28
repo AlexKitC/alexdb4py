@@ -1,0 +1,2 @@
+# alexdb
+db manage tool

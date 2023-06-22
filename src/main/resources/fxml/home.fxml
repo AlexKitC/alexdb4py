@@ -12,13 +12,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="640.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.alex.db.controller.HomeController">
    <top>
       <HBox alignment="CENTER_LEFT" prefHeight="47.0" prefWidth="960.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="newConnBtn" mnemonicParsing="false" text="new connection" />
-            <Button fx:id="newQueryBtn" mnemonicParsing="false" text="new query" />
+            <Button fx:id="newConnButton" mnemonicParsing="false" onAction="#onClickNewConnButton" text="新建连接">
+               <HBox.margin>
+                  <Insets left="16.0" />
+               </HBox.margin></Button>
+            <Button fx:id="newQueryButton" mnemonicParsing="false" onAction="#onClickNewQueryButton" text="新建查询" />
          </children>
          <opaqueInsets>
             <Insets />

@@ -1,5 +1,5 @@
-## alexdb
+## alexDB
 
-##### [中文](./README.md)｜[英文](./README.EN.md)
+##### [Chinese](./README.CN.md)｜[English](./README.md)
 
-Navicat是一款非常优秀的数据库管理工具，借鉴了它非常多优秀的设计和操作方式，使用纯java的openjfx开发了一款免费，开源的数据库管理工具替代品
+Navicat is a very excellent database management tool, alexDB drawing on its very good design and operation mode, using pure java openjfx to develop a free, open source database management tool replacement

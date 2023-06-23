@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
+import org.alex.db.Bootstrap;
 import org.alex.db.entity.ConnItem;
 
 import java.io.IOException;
@@ -49,6 +50,8 @@ public class HomeController implements Initializable {
         Scene scene = new Scene(root);
         newConnStage.setTitle("新建连接");
         newConnStage.setScene(scene);
+
+        Bootstrap.connStage = newConnStage;
         newConnStage.show();
     }
 

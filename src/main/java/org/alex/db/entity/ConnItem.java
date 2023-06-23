@@ -19,6 +19,7 @@ public class ConnItem {
     private ConnItemDetail connItemDetail;
 
     @Data
+    @Accessors(chain = true)
     public static class ConnItemDetail {
         private String connIp;
 

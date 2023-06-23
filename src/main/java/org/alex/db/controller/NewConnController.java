@@ -59,13 +59,12 @@ public class NewConnController {
         ConnItem connItem = getConnItem();
         //2.存储当前连接信息到file
         storeConnItem(connItem);
-        //3.关闭当前连接stage
-        Bootstrap.connStage.close();
-        //4.插入连接-tree
+        //3.插入连接-tree
     }
 
     private void storeConnItem(ConnItem connItem) {
         String filePath = String.format("%s/%s.conf", Consts.CONF_PATH, connItem.getConnName());
+
         StringBuilder fileContent = new StringBuilder();
         fileContent.append(connItem.getConnName())
                 .append(Consts.CONF_SPLIT)
@@ -87,12 +86,18 @@ public class NewConnController {
             //文件不存在则新建
             if (!file.exists()) {
                 file.createNewFile();
+
+                byte[] contentBytes = fileContent.toString().getBytes();
+                fileOutputStream.write(contentBytes);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+                Bootstrap.connStage.close();
+            } else {
+                newConnNameTextField.setText("当前连接已存在同名配置，请更换连接名称");
+                newConnNameTextField.requestFocus();
             }
 
-            byte[] contentBytes = fileContent.toString().getBytes();
-            fileOutputStream.write(contentBytes);
-            fileOutputStream.flush();
-            fileOutputStream.close();
+
         } catch (IOException ioException) {
 
         }

@@ -10,10 +10,12 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import org.alex.db.Bootstrap;
+import org.alex.db.Utils;
 import org.alex.db.entity.ConnItem;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -34,12 +36,8 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        ConnItem item = new ConnItem()
-                .setConnName("dev-yhc");
-        TreeItem<ConnItem> rootItem = new TreeItem<>(item);
-        rootItem.setExpanded(true);
-        rootItem.getChildren().add(new TreeItem<>());
-        connItemTreeView = new TreeView<>(rootItem);
+        List<String> confNameList = Utils.getConfNameList();
+        System.out.println(confNameList);
     }
 
 

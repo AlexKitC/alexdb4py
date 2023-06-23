@@ -3,9 +3,14 @@ package org.alex.db;
 import org.alex.db.consts.Consts;
 import org.alex.db.entity.ConnItem;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author alex
@@ -34,5 +39,18 @@ public class Utils {
         }
 
         return connItem;
+    }
+
+    public static List<String> getConfNameList() {
+        File file = new File(Consts.CONF_PATH);
+        File[] fs = file.listFiles();
+        if (fs == null ) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(fs)
+                .map(File::getName)
+                .filter(item -> item.endsWith(".conf"))
+                .collect(Collectors.toList());
     }
 }

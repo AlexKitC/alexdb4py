@@ -6,6 +6,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import org.alex.db.Bootstrap;
 import org.alex.db.consts.Consts;
+import org.alex.db.db.DbConnUtils;
 import org.alex.db.entity.ConnItem;
 
 import java.io.File;
@@ -18,7 +19,6 @@ import java.io.IOException;
  * @since 2023/6/22 21:34
  */
 public class NewConnController {
-
 
 
     @FXML
@@ -81,12 +81,11 @@ public class NewConnController {
 
         try {
             file = new File(filePath);
-            fileOutputStream = new FileOutputStream(file);
-
             //文件不存在则新建
             if (!file.exists()) {
                 file.createNewFile();
 
+                fileOutputStream = new FileOutputStream(file);
                 byte[] contentBytes = fileContent.toString().getBytes();
                 fileOutputStream.write(contentBytes);
                 fileOutputStream.flush();

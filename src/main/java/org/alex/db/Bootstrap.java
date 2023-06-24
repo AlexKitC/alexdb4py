@@ -9,6 +9,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
 
+import static org.alex.db.consts.Consts.TITLE;
+
 /**
  * @author alex
  * @version 1.0.0
@@ -23,7 +25,7 @@ public class Bootstrap extends Application {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/home.fxml")));
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setTitle("AlexDB-by Alex-黑白");
+        stage.setTitle(TITLE);
 
         homeStage = stage;
         stage.show();

@@ -6,7 +6,6 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -37,11 +36,7 @@
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
    </right>
    <left>
-      <VBox BorderPane.alignment="CENTER">
-         <children>
-            <TreeView fx:id="connItemTreeView" prefHeight="557.0" prefWidth="116.0" />
-         </children>
-      </VBox>
+      <VBox fx:id="leftVbox" BorderPane.alignment="CENTER" />
    </left>
    <center>
       <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">

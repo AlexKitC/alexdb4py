@@ -3,10 +3,12 @@ package org.alex.db;
 import org.alex.db.consts.Consts;
 import org.alex.db.entity.ConnItem;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,19 +25,24 @@ public class Utils {
     public static ConnItem parseConfByFileName(String fileName) {
         ConnItem connItem = new ConnItem();
         ConnItem.ConnItemDetail connItemDetail = new ConnItem.ConnItemDetail();
-        try {
-            String confFileContent = Files.readString(Paths.get(Consts.CONF_PATH + fileName + ".conf"));
-            String[] confFileContentArray = confFileContent.split(Consts.CONF_SPLIT);
-            connItem.setConnName(confFileContentArray[0]);
-            connItemDetail.setConnIp(confFileContentArray[1]);
-            connItemDetail.setPort(Integer.valueOf(confFileContentArray[2]));
-            connItemDetail.setUsername(confFileContentArray[3]);
-            connItemDetail.setPassword(confFileContentArray[4]);
+
+
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(Consts.CONF_PATH + fileName))) {
+            String confFileContent;
+            List<String> confFileContentArray = new ArrayList<>(8);
+            while ((confFileContent = br.readLine()) != null) {
+                confFileContentArray.add(confFileContent);
+            }
+
+            connItem.setConnName(confFileContentArray.get(0));
+            connItemDetail.setConnIp(confFileContentArray.get(1));
+            connItemDetail.setPort(Integer.valueOf(confFileContentArray.get(2)));
+            connItemDetail.setUsername(confFileContentArray.get(3));
+            connItemDetail.setPassword(confFileContentArray.get(4));
 
             connItem.setConnItemDetail(connItemDetail);
-
-        } catch (IOException ioException) {
-
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return connItem;

@@ -65,7 +65,7 @@ public class HomeController implements Initializable {
                             && confNameList.contains(clickedConfName)) {
                         DbConnUtils.generateConn(connItemHashMap.get(clickedConfName));
                         List<String> databaseList = DbConnUtils.getDatabases();
-                        addItemToTreeRootItem(rootItem, databaseList);
+                        addItemToTreeRootItemForDatabase(rootItem, databaseList, tree, connItemHashMap.get(clickedConfName));
                     }
                     System.out.println(mouseEvent.getTarget());
                 });
@@ -75,11 +75,35 @@ public class HomeController implements Initializable {
 
     }
 
-    private void addItemToTreeRootItem(TreeItem<String> rootItem, List<String> childList) {
-        for (String child : childList) {
-            TreeItem<String> item = new TreeItem<>(child);
+    private void addItemToTreeRootItemForDatabase(TreeItem<String> rootItem, List<String> databaseList, TreeView<String> tree, ConnItem connItem) {
+        for (String db : databaseList) {
+            TreeItem<String> item = new TreeItem<>(db);
             rootItem.getChildren().add(item);
+            rootItem.setExpanded(true);
+            tree.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+                String clickedDatabaseName = mouseEvent.getTarget() instanceof Text ? ((Text) mouseEvent.getTarget()).getText() : "";
+                if (mouseEvent.getClickCount() == 2
+                        && mouseEvent.getTarget() instanceof Text
+                        && databaseList.contains(clickedDatabaseName)) {
+                    DbConnUtils.generateConn(connItem);
+                    List<String> tableList = DbConnUtils.getTables(clickedDatabaseName);
+                    System.out.println(tableList);
+                    addItemToTreeRootItemForTables(item, tableList, clickedDatabaseName);
+                }
+            });
         }
+
+    }
+
+    private void addItemToTreeRootItemForTables(TreeItem<String> databaseItem, List<String> tableList, String clickedDatabaseName) {
+        if (databaseItem.getValue().equals(clickedDatabaseName)) {
+            databaseItem.setExpanded(true);
+            for (String table : tableList) {
+                TreeItem<String> item = new TreeItem<>(table);
+                databaseItem.getChildren().add(item);
+            }
+        }
+
 
     }
 

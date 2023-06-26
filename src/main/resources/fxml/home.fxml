@@ -4,8 +4,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -41,25 +41,18 @@
    <center>
       <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
-          <Tab text="Untitled Tab 1">
+          <Tab text="表数据">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0">
                      <children>
-                        <TableView layoutX="22.0" prefHeight="400.0" prefWidth="262.0">
-                           <columns>
-                              <TableColumn prefWidth="75.0" text="Column X" />
-                              <TableColumn prefWidth="75.0" text="Column X" />
-                              <TableColumn prefWidth="75.0" text="Column X" />
-                           </columns>
+                        <TableView fx:id="tableTableView" layoutX="22.0" maxWidth="600.0" prefWidth="600.0" tableMenuButtonVisible="true">
+                           <effect>
+                              <Blend />
+                           </effect>
                         </TableView>
                      </children>
                   </AnchorPane>
             </content>
-          </Tab>
-          <Tab text="Untitled Tab 2">
-               <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0" />
-               </content>
           </Tab>
         </tabs>
       </TabPane>

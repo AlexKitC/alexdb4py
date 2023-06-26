@@ -1,6 +1,7 @@
 ###### 2023-06-26:
 
 1. add connection treeview icon and prefHeight auto calculate
+2. add table field render into tableView Column
 
 ###### 2023-06-24:
 

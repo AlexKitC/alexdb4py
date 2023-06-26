@@ -1,6 +1,7 @@
 package org.alex.db.db;
 
 import org.alex.db.entity.ConnItem;
+import org.alex.db.entity.TableField;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -88,5 +89,25 @@ public class DbConnUtils {
         }
 
         return tableNameList;
+    }
+
+    //获取当前表的所有字段数据
+    public static List<TableField> getFields(String tableName) {
+        List<TableField> tableFieldsList = new ArrayList<>();
+        try {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            ResultSet resultSet = databaseMetaData.getColumns(null, null, tableName, "%");
+            while (resultSet.next()) {
+                var fieldItem = new TableField()
+                        .setColumnName(resultSet.getString("COLUMN_NAME"))
+                        .setRemarks(resultSet.getString("REMARKS"))
+                        .setTypeName(resultSet.getString("TYPE_NAME"));
+                tableFieldsList.add(fieldItem);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return tableFieldsList;
     }
 }

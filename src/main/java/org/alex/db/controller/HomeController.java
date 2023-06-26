@@ -5,9 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,6 +17,7 @@ import org.alex.db.Bootstrap;
 import org.alex.db.Utils;
 import org.alex.db.db.DbConnUtils;
 import org.alex.db.entity.ConnItem;
+import org.alex.db.entity.TableField;
 
 import java.io.IOException;
 import java.net.URL;
@@ -42,12 +41,17 @@ public class HomeController implements Initializable {
     private Button newConnButton;
     @FXML
     private Button newQueryButton;
+    @FXML
+    private TableView<TableField> tableTableView;
+
+    private static final int TREE_ITEM_HEIGHT = 28;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         List<String> confNameList = Utils.getConfNameList();
         System.out.println(confNameList);
+
 
         if (confNameList.size() > 0) {
             HashMap<String, ConnItem> connItemHashMap = new HashMap<>();
@@ -61,7 +65,7 @@ public class HomeController implements Initializable {
                 leftVbox.getChildren().add(tree);
 
                 tree.setBlendMode(BlendMode.SRC_OVER);
-                tree.setPrefHeight(28);
+                tree.setPrefHeight(TREE_ITEM_HEIGHT);
 
                 //如果双击treeView的Text名为配置文件名：说明是rootItem，执行sql获取表数据插入
                 tree.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
@@ -82,7 +86,7 @@ public class HomeController implements Initializable {
     }
 
     private void addItemToTreeRootItemForDatabase(TreeItem<String> rootItem, List<String> databaseList, TreeView<String> tree, ConnItem connItem) {
-        tree.setPrefHeight(28*(databaseList.size()+1));
+        tree.setPrefHeight(TREE_ITEM_HEIGHT * (databaseList.size() + 1));
         for (String db : databaseList) {
             TreeItem<String> item = new TreeItem<>(db, getIconDatabase());
             rootItem.getChildren().add(item);
@@ -95,21 +99,39 @@ public class HomeController implements Initializable {
 
                     DbConnUtils.generateConn(connItem);
                     List<String> tableList = DbConnUtils.getTables(clickedDatabaseName);
-                    tree.setPrefHeight(280);
-                    addItemToTreeRootItemForTables(tree, item, tableList, clickedDatabaseName);
+                    addItemToTreeRootItemForTables(tree, item, tableList, clickedDatabaseName, connItem);
                 }
             });
         }
 
     }
 
-    private void addItemToTreeRootItemForTables(TreeView<String> tree, TreeItem<String> databaseItem, List<String> tableList, String clickedDatabaseName) {
-        tree.setPrefHeight(28*(tableList.size()+1));
+    private void addItemToTreeRootItemForTables(TreeView<String> tree, TreeItem<String> databaseItem, List<String> tableList, String clickedDatabaseName, ConnItem connItem) {
+        tree.setPrefHeight(TREE_ITEM_HEIGHT * (tableList.size() + 1));
         if (databaseItem.getValue().equals(clickedDatabaseName)) {
             databaseItem.setExpanded(true);
             for (String table : tableList) {
                 TreeItem<String> item = new TreeItem<>(table, getIconTable());
+                tree.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+                    String clickedTableName = mouseEvent.getTarget() instanceof Text ? ((Text) mouseEvent.getTarget()).getText() : "";
+                    if (mouseEvent.getClickCount() == 2
+                            && mouseEvent.getTarget() instanceof Text
+                            && tableList.contains(clickedTableName)) {
+                        //
+
+                        //同时加入tableview中
+                        DbConnUtils.generateConn(connItem);
+                        List<TableField> tableFieldsList = DbConnUtils.getFields(clickedTableName);
+                        tableTableView.getColumns().clear();
+                        for (var field : tableFieldsList) {
+                            TableColumn column = new TableColumn(field.getColumnName());
+//                            column.setPrefWidth(10*(field.getColumnName().length()));
+                            tableTableView.getColumns().add(column);
+                        }
+                    }
+                });
                 databaseItem.getChildren().add(item);
+
             }
         }
 

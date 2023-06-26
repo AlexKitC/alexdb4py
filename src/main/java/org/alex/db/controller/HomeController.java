@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -59,6 +60,9 @@ public class HomeController implements Initializable {
                 TreeView<String> tree = new TreeView<>(rootItem);
                 leftVbox.getChildren().add(tree);
 
+                tree.setBlendMode(BlendMode.SRC_OVER);
+                tree.setPrefHeight(28);
+
                 //如果双击treeView的Text名为配置文件名：说明是rootItem，执行sql获取表数据插入
                 tree.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
                     String clickedConfName = mouseEvent.getTarget() instanceof Text ? ((Text) mouseEvent.getTarget()).getText() : "";
@@ -78,6 +82,7 @@ public class HomeController implements Initializable {
     }
 
     private void addItemToTreeRootItemForDatabase(TreeItem<String> rootItem, List<String> databaseList, TreeView<String> tree, ConnItem connItem) {
+        tree.setPrefHeight(28*(databaseList.size()+1));
         for (String db : databaseList) {
             TreeItem<String> item = new TreeItem<>(db, getIconDatabase());
             rootItem.getChildren().add(item);
@@ -91,14 +96,15 @@ public class HomeController implements Initializable {
                     DbConnUtils.generateConn(connItem);
                     List<String> tableList = DbConnUtils.getTables(clickedDatabaseName);
                     tree.setPrefHeight(280);
-                    addItemToTreeRootItemForTables(item, tableList, clickedDatabaseName);
+                    addItemToTreeRootItemForTables(tree, item, tableList, clickedDatabaseName);
                 }
             });
         }
 
     }
 
-    private void addItemToTreeRootItemForTables(TreeItem<String> databaseItem, List<String> tableList, String clickedDatabaseName) {
+    private void addItemToTreeRootItemForTables(TreeView<String> tree, TreeItem<String> databaseItem, List<String> tableList, String clickedDatabaseName) {
+        tree.setPrefHeight(28*(tableList.size()+1));
         if (databaseItem.getValue().equals(clickedDatabaseName)) {
             databaseItem.setExpanded(true);
             for (String table : tableList) {

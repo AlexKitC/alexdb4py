@@ -1,3 +1,7 @@
+###### 2023-06-26:
+
+1. add connection treeview icon and prefHeight auto calculate
+
 ###### 2023-06-24:
 
 1. finish db connect treeView of Mouse double clicked Event and read sql tables to render

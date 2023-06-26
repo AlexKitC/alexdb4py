@@ -8,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -52,7 +54,7 @@ public class HomeController implements Initializable {
                 connItemHashMap.put(item, Utils.parseConfByFileName(item));
 
                 // 根据配置文件放入连接信息的tree rootItem
-                TreeItem<String> rootItem = new TreeItem<>(item);
+                TreeItem<String> rootItem = new TreeItem<>(item, getIconMysql());
 
                 TreeView<String> tree = new TreeView<>(rootItem);
                 leftVbox.getChildren().add(tree);
@@ -77,7 +79,7 @@ public class HomeController implements Initializable {
 
     private void addItemToTreeRootItemForDatabase(TreeItem<String> rootItem, List<String> databaseList, TreeView<String> tree, ConnItem connItem) {
         for (String db : databaseList) {
-            TreeItem<String> item = new TreeItem<>(db);
+            TreeItem<String> item = new TreeItem<>(db, getIconDatabase());
             rootItem.getChildren().add(item);
             rootItem.setExpanded(true);
             tree.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
@@ -85,9 +87,10 @@ public class HomeController implements Initializable {
                 if (mouseEvent.getClickCount() == 2
                         && mouseEvent.getTarget() instanceof Text
                         && databaseList.contains(clickedDatabaseName)) {
+
                     DbConnUtils.generateConn(connItem);
                     List<String> tableList = DbConnUtils.getTables(clickedDatabaseName);
-                    System.out.println(tableList);
+                    tree.setPrefHeight(280);
                     addItemToTreeRootItemForTables(item, tableList, clickedDatabaseName);
                 }
             });
@@ -99,12 +102,28 @@ public class HomeController implements Initializable {
         if (databaseItem.getValue().equals(clickedDatabaseName)) {
             databaseItem.setExpanded(true);
             for (String table : tableList) {
-                TreeItem<String> item = new TreeItem<>(table);
+                TreeItem<String> item = new TreeItem<>(table, getIconTable());
                 databaseItem.getChildren().add(item);
             }
         }
 
 
+    }
+
+    private ImageView getIconMysql() {
+        return new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/mysql.png")), 20, 20, true, true));
+    }
+
+    private ImageView getIconRedis() {
+        return new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/redis.png")), 20, 20, true, true));
+    }
+
+    private ImageView getIconDatabase() {
+        return new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/database.png")), 20, 20, true, true));
+    }
+
+    private ImageView getIconTable() {
+        return new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/table.png")), 20, 20, true, true));
     }
 
 

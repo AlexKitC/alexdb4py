@@ -1,11 +1,14 @@
 package org.alex.db.db;
 
+import javafx.beans.property.SimpleStringProperty;
 import org.alex.db.entity.ConnItem;
 import org.alex.db.entity.TableField;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author alex
@@ -16,17 +19,19 @@ public class DbConnUtils {
 
     private static Connection connection;
     private static Statement statement;
+    public static String USE_DATABASE;
 
-    public static void generateConn(ConnItem connItem) {
+    public static void generateConn(ConnItem connItem, String database) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException classNotFoundException) {
             classNotFoundException.printStackTrace();
         }
 
-        String url = String.format("jdbc:mysql://%s:%s",
+        String url = String.format("jdbc:mysql://%s:%s/%s",
                 connItem.getConnItemDetail().getConnIp(),
-                connItem.getConnItemDetail().getPort());
+                connItem.getConnItemDetail().getPort(),
+                database == null ? "" : database);
         try {
             connection = DriverManager.getConnection(url,
                     connItem.getConnItemDetail().getUsername(),
@@ -38,11 +43,18 @@ public class DbConnUtils {
         }
     }
 
-    public static void doQuery(String sqlStatementString) {
+    public static List<Map<String, String>> doQuery(String sqlStatementString, List<TableField> tableFieldList) {
+
+        var resultList = new ArrayList<Map<String, String>>();
         try {
             ResultSet resultSet = statement.executeQuery(sqlStatementString);
+
             while (resultSet.next()) {
-//                System.out.println(resultSet.);
+                var resultMap = new HashMap<String, String>();
+                for (var field : tableFieldList) {
+                    resultMap.put(field.getColumnName(), resultSet.getString(field.getColumnName()));
+                }
+                resultList.add(resultMap);
             }
             statement.close();
             connection.close();
@@ -50,6 +62,7 @@ public class DbConnUtils {
             sqlException.printStackTrace();
         }
 
+        return resultList;
     }
 
     //获取当前连接下的所有数据库名称
@@ -110,4 +123,5 @@ public class DbConnUtils {
 
         return tableFieldsList;
     }
+
 }

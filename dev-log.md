@@ -1,6 +1,7 @@
 ###### 2023-07-10:
 
 1. proj change java to pure python3.9 with tkinter to render
+2. support read conf file and render connection treeview
 
 ###### 2023-06-26:
 

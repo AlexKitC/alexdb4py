@@ -7,6 +7,8 @@ import os.path
 # pyinstaller -D -y -w --noconsole --name alexkit main.py
 
 import tkinter as tk
+from tkinter import ttk
+from tkinter.constants import END
 from tkinter.messagebox import *
 
 root = tk.Tk()
@@ -20,6 +22,8 @@ gui_offset_y = int((win_height - gui_height) / 2)
 gui_offset = '{w}x{h}+{x}+{y}'.format(w=gui_width, h=gui_height, x=gui_offset_x, y=gui_offset_y)
 
 new_conn_offset = '{w}x{h}+{x}+{y}'.format(w=640, h=480, x=gui_offset_x + 160, y=gui_offset_y + 80)
+
+conn_tree = ttk.Treeview(master=root)
 
 
 # 渲染主窗体
@@ -117,7 +121,8 @@ def save_new_conn(cur_view, name, url, port, username, password):
         is_conf_file_exist = os.path.exists('./{fname}.conf'.format(fname=name))
         if is_conf_file_exist:
             # 如果存在当前配置文件提示是否需要更新覆盖
-            bool_save_or_cancel = askokcancel(title="需要确认", message='当前配置名为：{name}已经存在！是否覆盖?'.format(name=name))
+            bool_save_or_cancel = askokcancel(title="需要确认",
+                                              message='当前配置名为：{name}已经存在！是否覆盖?'.format(name=name))
             if bool_save_or_cancel:
                 # 覆盖则需要删除再写入
                 pass
@@ -126,7 +131,7 @@ def save_new_conn(cur_view, name, url, port, username, password):
                 cur_view.destroy()
         else:
             # 不存在则存储配置文件
-            conf_fd = open(file='local.conf'.format(name=name), mode='x')
+            conf_fd = open(file='{name}.conf'.format(name=name), mode='x')
             conf_fd.write("{name}\r\n{url}\r\n{port}\r\n{username}\r\n{password}".format(
                 name=name,
                 url=url,
@@ -135,9 +140,47 @@ def save_new_conn(cur_view, name, url, port, username, password):
                 password=password
             ))
             conf_fd.close()
+            cur_view.destroy()
+            # 同时追加连接到treeview去
+            conn_tree.insert(parent="", index=END, text=name, values="1")
+            root.update()
+
+
+# 读取存在的连接配置列表
+def get_conf_list():
+    target_list = []
+    file_list = os.listdir('.')
+    for file in file_list:
+        if file.endswith('.conf'):
+            target_list.append(file.replace(".conf", ''))
+
+    return target_list
+
+
+# 根据获取的配置文件列表渲染连接的treeview
+def render_conn_tree():
+    # 插入第一级：配置文件列表
+    file_list = get_conf_list()
+    for file in file_list:
+        c = conn_tree.insert(parent='', index=END, text=file, values=1)
+        conn_tree.insert(parent=c, index=END, text="child")
+
+    # 绑定一个双击事件
+    conn_tree.bind("<Double-1>", double_click_conf_name)
+    conn_tree.place(x=16, y=48)
+
+
+# 双击连接名
+def double_click_conf_name(event):
+    e = event.widget
+    iid = e.identify("item", event.x, event.y)
+    clicked_item_name = e.item(iid, "text")
+    level = e.item(iid, "values")[0]
+    print(level)
 
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
+    render_conn_tree()
     # 渲染窗体
-    render_gui("alexkit")
+    render_gui("alexdb")

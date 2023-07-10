@@ -2,10 +2,11 @@
 import os.path
 import tkinter as tk
 from tkinter import ttk
-from tkinter.constants import END
+from tkinter.constants import END, BOTTOM, HORIZONTAL, VERTICAL, RIGHT, X, Y, S
 from tkinter.messagebox import *
 
 import pymysql
+from PIL import Image, ImageTk
 
 # -D 文件夹打包
 # -F 单文件打包
@@ -25,8 +26,16 @@ gui_offset = '{w}x{h}+{x}+{y}'.format(w=gui_width, h=gui_height, x=gui_offset_x,
 
 new_conn_offset = '{w}x{h}+{x}+{y}'.format(w=640, h=480, x=gui_offset_x + 160, y=gui_offset_y + 80)
 
-# 连接tree
-conn_tree = ttk.Treeview(master=root, height=28)
+# 连接信息的tree
+conn_tree = ttk.Treeview(master=root)
+# 连接信息tree的滚动条
+scroll_bar_tree_x = tk.Scrollbar(master=conn_tree, orient=HORIZONTAL, command=conn_tree.xview)
+conn_tree.configure(xscrollcommand=scroll_bar_tree_x.set)
+scroll_bar_tree_x.pack(side=BOTTOM, fill=X)
+
+scroll_bar_tree_y = tk.Scrollbar(master=conn_tree, orient=VERTICAL, command=conn_tree.yview)
+conn_tree.configure(yscrollcommand=scroll_bar_tree_y.set)
+scroll_bar_tree_y.pack(side=RIGHT, fill=Y)
 
 # 连接的tree conf级别 item的映射  conf_name->conf_item
 conn_tree_conf_dict = {}
@@ -39,6 +48,18 @@ conn_tree_table_dict = {}
 current_selected_conn_file = ''
 # 当前选中的db
 current_selected_db = ''
+
+# 当前conf包含的db_list
+conf_db_list = {}
+# 当前db包含的table_list
+db_table_list = {}
+# 当前table包含的column_list
+table_column_list = {}
+
+# icon
+icon_mysql = ImageTk.PhotoImage(Image.open('./icon/mysql.png').resize((16, 16)))
+icon_database = ImageTk.PhotoImage(Image.open('./icon/database.png').resize((12, 16)))
+icon_table = ImageTk.PhotoImage(Image.open('./icon/table.png').resize((13, 13)))
 
 
 # 渲染主窗体
@@ -177,11 +198,16 @@ def render_conn_tree():
     # 插入第一级：配置文件列表
     file_list = get_conf_list()
     for file in file_list:
-        top_level_tree_item = conn_tree.insert(parent='', index=END, text=file, values=1)
+        global icon_mysql
+        top_level_tree_item = conn_tree.insert(parent='',
+                                               index=END,
+                                               text=file,
+                                               image=icon_mysql,
+                                               values=1)
         conn_tree_conf_dict[file] = top_level_tree_item
     # 绑定一个双击事件
     conn_tree.bind("<Double-1>", double_click_conf_name)
-    conn_tree.place(x=16, y=48)
+    conn_tree.place(x=16, y=48, relwidth=0.22, relheight=0.9)
 
 
 # 双击连接名
@@ -196,10 +222,10 @@ def double_click_conf_name(event):
         current_selected_conn_file = clicked_item_name
 
     db_conf_dict = read_conn_conf(current_selected_conn_file)
-
-
+    global icon_database
     # 如果是最顶级则直接执行db连接
     if level == '1':
+
         db = pymysql.connect(host=db_conf_dict.get('url'),
                              port=int(db_conf_dict.get('port')),
                              user=db_conf_dict.get('username'),
@@ -209,11 +235,22 @@ def double_click_conf_name(event):
         cursor.execute("show databases;")
         db_data = cursor.fetchall()
         parent = conn_tree_conf_dict.get(clicked_item_name)
+        db_list = []
+        print(conf_db_list)
         # 追加database到父节点
         for db in db_data:
-            db_item = conn_tree.insert(parent=parent, index=END, text=db[0], values=2)
-            conn_tree_db_dict[db[0]] = db_item
-    # table
+            if len(conf_db_list) == 0 or db[0] not in conf_db_list[clicked_item_name]:
+                db_item = conn_tree.insert(parent=parent,
+                                           index=END,
+                                           text=db[0],
+                                           image=icon_database,
+                                           values=2)
+                conn_tree_db_dict[db[0]] = db_item
+                db_list.append(db[0])
+
+        if len(db_list) > 0:
+            conf_db_list[clicked_item_name] = db_list
+        # table
     elif level == '2':
         current_selected_db = clicked_item_name
         db = pymysql.connect(host=db_conf_dict.get('url'),
@@ -226,9 +263,19 @@ def double_click_conf_name(event):
         cursor.execute("show tables;")
         table_data = cursor.fetchall()
         parent = conn_tree_db_dict.get(current_selected_db)
+        table_list = []
+        global icon_table
         for table in table_data:
-            table_item = conn_tree.insert(parent=parent, index=END, text=table[0], values=3)
-            conn_tree_table_dict[table[0]] = table_item
+            if len(db_table_list) == 0 or table[0] not in db_table_list.get(current_selected_db):
+                table_item = conn_tree.insert(parent=parent,
+                                              index=END,
+                                              text=table[0],
+                                              image=icon_table,
+                                              values=3)
+                conn_tree_table_dict[table[0]] = table_item
+                table_list.append(table[0])
+        if len(table_list) > 0:
+            db_table_list[current_selected_db] = table_list
 
 
 # 读取conn信息

@@ -1,15 +1,17 @@
 #!/usr/local/bin/python3
 import os.path
+import tkinter as tk
+from tkinter import ttk
+from tkinter.constants import END
+from tkinter.messagebox import *
+
+import pymysql
+
 # -D 文件夹打包
 # -F 单文件打包
 # -w 不显示命令行
 # --noconsole 不显示console
 # pyinstaller -D -y -w --noconsole --name alexkit main.py
-
-import tkinter as tk
-from tkinter import ttk
-from tkinter.constants import END
-from tkinter.messagebox import *
 
 root = tk.Tk()
 gui_width = 960
@@ -23,7 +25,20 @@ gui_offset = '{w}x{h}+{x}+{y}'.format(w=gui_width, h=gui_height, x=gui_offset_x,
 
 new_conn_offset = '{w}x{h}+{x}+{y}'.format(w=640, h=480, x=gui_offset_x + 160, y=gui_offset_y + 80)
 
-conn_tree = ttk.Treeview(master=root)
+# 连接tree
+conn_tree = ttk.Treeview(master=root, height=28)
+
+# 连接的tree conf级别 item的映射  conf_name->conf_item
+conn_tree_conf_dict = {}
+# 连接的tree db级别item的映射 db_name->db_item
+conn_tree_db_dict = {}
+# 连接的tree table级别item的映射 table_name->table_item
+conn_tree_table_dict = {}
+
+# 当前使用的连接文件
+current_selected_conn_file = ''
+# 当前选中的db
+current_selected_db = ''
 
 
 # 渲染主窗体
@@ -142,7 +157,7 @@ def save_new_conn(cur_view, name, url, port, username, password):
             conf_fd.close()
             cur_view.destroy()
             # 同时追加连接到treeview去
-            conn_tree.insert(parent="", index=END, text=name, values="1")
+            conn_tree.insert(parent="", index=END, text=name, values=1)
             root.update()
 
 
@@ -162,9 +177,8 @@ def render_conn_tree():
     # 插入第一级：配置文件列表
     file_list = get_conf_list()
     for file in file_list:
-        c = conn_tree.insert(parent='', index=END, text=file, values=1)
-        conn_tree.insert(parent=c, index=END, text="child")
-
+        top_level_tree_item = conn_tree.insert(parent='', index=END, text=file, values=1)
+        conn_tree_conf_dict[file] = top_level_tree_item
     # 绑定一个双击事件
     conn_tree.bind("<Double-1>", double_click_conf_name)
     conn_tree.place(x=16, y=48)
@@ -172,11 +186,62 @@ def render_conn_tree():
 
 # 双击连接名
 def double_click_conf_name(event):
+    global current_selected_conn_file
     e = event.widget
     iid = e.identify("item", event.x, event.y)
     clicked_item_name = e.item(iid, "text")
     level = e.item(iid, "values")[0]
-    print(level)
+
+    if level == '1':
+        current_selected_conn_file = clicked_item_name
+
+    db_conf_dict = read_conn_conf(current_selected_conn_file)
+
+
+    # 如果是最顶级则直接执行db连接
+    if level == '1':
+        db = pymysql.connect(host=db_conf_dict.get('url'),
+                             port=int(db_conf_dict.get('port')),
+                             user=db_conf_dict.get('username'),
+                             password=db_conf_dict.get('password'))
+
+        cursor = db.cursor()
+        cursor.execute("show databases;")
+        db_data = cursor.fetchall()
+        parent = conn_tree_conf_dict.get(clicked_item_name)
+        # 追加database到父节点
+        for db in db_data:
+            db_item = conn_tree.insert(parent=parent, index=END, text=db[0], values=2)
+            conn_tree_db_dict[db[0]] = db_item
+    # table
+    elif level == '2':
+        current_selected_db = clicked_item_name
+        db = pymysql.connect(host=db_conf_dict.get('url'),
+                             port=int(db_conf_dict.get('port')),
+                             user=db_conf_dict.get('username'),
+                             password=db_conf_dict.get('password'),
+                             database=current_selected_db)
+
+        cursor = db.cursor()
+        cursor.execute("show tables;")
+        table_data = cursor.fetchall()
+        parent = conn_tree_db_dict.get(current_selected_db)
+        for table in table_data:
+            table_item = conn_tree.insert(parent=parent, index=END, text=table[0], values=3)
+            conn_tree_table_dict[table[0]] = table_item
+
+
+# 读取conn信息
+def read_conn_conf(name):
+    conf_dict = {}
+    conf_content = open('./{name}.conf'.format(name=name), mode="r")
+    conf_data = conf_content.read().split("\n")
+    conf_content.close()
+    conf_dict['url'] = conf_data[1]
+    conf_dict['port'] = conf_data[2]
+    conf_dict['username'] = conf_data[3]
+    conf_dict['password'] = conf_data[4]
+    return conf_dict
 
 
 # 按间距中的绿色按钮以运行脚本。

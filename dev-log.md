@@ -1,3 +1,7 @@
+###### 2023-07-10:
+
+1. proj change java to pure python3.9 with tkinter to render
+
 ###### 2023-06-26:
 
 1. add connection treeview icon and prefHeight auto calculate

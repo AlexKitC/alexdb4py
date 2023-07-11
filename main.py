@@ -173,7 +173,7 @@ def save_new_conn(cur_view, name, url, port, username, password):
                 cur_view.destroy()
         else:
             # 不存在则存储配置文件
-            conf_fd = open(file='{name}.conf'.format(name=name), mode='x')
+            conf_fd = open(file='{path}/{name}.conf'.format(path=os.path.dirname(os.path.realpath(__file__)), name=name), mode='x')
             conf_fd.write("{name}\r\n{url}\r\n{port}\r\n{username}\r\n{password}".format(
                 name=name,
                 url=url,
@@ -191,7 +191,7 @@ def save_new_conn(cur_view, name, url, port, username, password):
 # 读取存在的连接配置列表
 def get_conf_list():
     target_list = []
-    file_list = os.listdir('.')
+    file_list = os.listdir(os.path.dirname(os.path.realpath(__file__)))
     for file in file_list:
         if file.endswith('.conf'):
             target_list.append(file.replace(".conf", ''))
@@ -259,7 +259,7 @@ def double_click_conf_name(event):
         parent = conn_tree_db_dict.get(current_selected_db)
         table_list = []
         global icon_table
-        print(db_table_list)
+
         for table in table_data:
             if len(db_table_list) == 0 or (
                     current_selected_db not in db_table_list.keys() and table[0] not in db_table_list.get(

@@ -2,6 +2,7 @@
 '''
 根据保存的连接信息读取配置信息到dict并返回
 '''
+import os
 
 
 class Conf:
@@ -10,7 +11,8 @@ class Conf:
         :type conn_name: string
         """
         self.conf_dict = {}
-        conf_content = open('./{name}.conf'.format(name=conn_name), mode="r")
+        conf_content = open(
+            '{path}/{name}.conf'.format(path=os.path.dirname(os.path.dirname(__file__)), name=conn_name), mode="r")
         conf_data = conf_content.read().split("\n")
         conf_content.close()
         self.conf_dict['url'] = conf_data[1]

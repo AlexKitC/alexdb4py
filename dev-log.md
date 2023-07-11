@@ -3,6 +3,8 @@
 1. finish table columns and data rows render
 2. add icons for treeview item
 3. add a screenshot example for alexdb
+4. add readme requirement and package info
+5. Refactor code and more structure
 
 ###### 2023-07-10:
 

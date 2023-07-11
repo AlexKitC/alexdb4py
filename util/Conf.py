@@ -19,5 +19,5 @@ class Conf:
         self.conf_dict['password'] = conf_data[4]
 
     # 读取配置信息dict根据连接名
-    def read_conn_conf(self, conn_name):
+    def read_conn_conf(self):
         return self.conf_dict

@@ -227,7 +227,7 @@ def double_click_conf_name(event):
     if level == '1':
         current_selected_conn_file = clicked_item_name
 
-    db_conf_dict = Conf.read_conn_conf(current_selected_conn_file)
+    db_conf_dict = Conf(current_selected_conn_file).read_conn_conf()
     global icon_database
     # 如果是最顶级则直接执行db连接
     if level == '1':
@@ -255,7 +255,7 @@ def double_click_conf_name(event):
         global current_selected_db
         current_selected_db = clicked_item_name
 
-        table_data = Mysql(db_conf_dict, current_selected_db)
+        table_data = Mysql(db_conf_dict, current_selected_db).show_tables()
         parent = conn_tree_db_dict.get(current_selected_db)
         table_list = []
         global icon_table

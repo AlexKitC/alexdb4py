@@ -5,10 +5,11 @@ from tkinter import ttk
 from tkinter.constants import END, BOTTOM, HORIZONTAL, VERTICAL, RIGHT, X, Y
 from tkinter.messagebox import *
 
-import pymysql
 from PIL import Image, ImageTk
 
 from component.Table import Table
+from util.Conf import Conf
+from util.Mysql import Mysql
 
 # -D 文件夹打包
 # -F 单文件打包
@@ -226,19 +227,12 @@ def double_click_conf_name(event):
     if level == '1':
         current_selected_conn_file = clicked_item_name
 
-    db_conf_dict = read_conn_conf(current_selected_conn_file)
+    db_conf_dict = Conf.read_conn_conf(current_selected_conn_file)
     global icon_database
     # 如果是最顶级则直接执行db连接
     if level == '1':
 
-        db = pymysql.connect(host=db_conf_dict.get('url'),
-                             port=int(db_conf_dict.get('port')),
-                             user=db_conf_dict.get('username'),
-                             password=db_conf_dict.get('password'))
-
-        cursor = db.cursor()
-        cursor.execute("show databases;")
-        db_data = cursor.fetchall()
+        db_data = Mysql(db_conf_dict, None).show_databases()
         parent = conn_tree_conf_dict.get(clicked_item_name)
         db_list = []
 
@@ -260,16 +254,8 @@ def double_click_conf_name(event):
     elif level == '2':
         global current_selected_db
         current_selected_db = clicked_item_name
-        print(current_selected_db)
-        db = pymysql.connect(host=db_conf_dict.get('url'),
-                             port=int(db_conf_dict.get('port')),
-                             user=db_conf_dict.get('username'),
-                             password=db_conf_dict.get('password'),
-                             database=current_selected_db)
 
-        cursor = db.cursor()
-        cursor.execute("show tables;")
-        table_data = cursor.fetchall()
+        table_data = Mysql(db_conf_dict, current_selected_db)
         parent = conn_tree_db_dict.get(current_selected_db)
         table_list = []
         global icon_table
@@ -289,38 +275,15 @@ def double_click_conf_name(event):
             db_table_list[current_selected_db] = table_list
 
     elif level == '3':
-
-        db = pymysql.connect(host=db_conf_dict.get('url'),
-                             port=int(db_conf_dict.get('port')),
-                             user=db_conf_dict.get('username'),
-                             password=db_conf_dict.get('password'),
-                             database=current_selected_db)
-        cursor = db.cursor()
-        # 先获取表字段
-        cursor.execute(
-            "select COLUMN_NAME from information_schema.COLUMNS where table_name = '{table}';".format(table=clicked_item_name))
-        column_data = cursor.fetchall()
+        column_data = Mysql(db_conf_dict, current_selected_db).show_columns(clicked_item_name)
         # 当前表字段
         columns = []
         for item in column_data:
             columns.append(item[0])
         # 再获取表行数据
-        cursor.execute("select * from {table};".format(table=clicked_item_name))
-        table_rows_data = cursor.fetchall()
+        table_rows_data = Mysql(db_conf_dict, current_selected_db).query(
+            "select * from {table};".format(table=clicked_item_name))
         Table(root, columns, table_rows_data).get_instance()
-
-
-# 读取conn信息
-def read_conn_conf(name):
-    conf_dict = {}
-    conf_content = open('./{name}.conf'.format(name=name), mode="r")
-    conf_data = conf_content.read().split("\n")
-    conf_content.close()
-    conf_dict['url'] = conf_data[1]
-    conf_dict['port'] = conf_data[2]
-    conf_dict['username'] = conf_data[3]
-    conf_dict['password'] = conf_data[4]
-    return conf_dict
 
 
 # 按间距中的绿色按钮以运行脚本。

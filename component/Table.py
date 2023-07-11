@@ -1,8 +1,15 @@
 from tkinter import ttk, END, HORIZONTAL, VERTICAL, RIGHT, Y, BOTTOM, X
 
+'''
+表格数据渲染
+'''
+
 
 class Table:
     def __init__(self, root, columns, data_list):
+        """
+        :type columns: list
+        """
         self.data_table = ttk.Treeview(master=root,
                                        columns=columns,
                                        show="headings")

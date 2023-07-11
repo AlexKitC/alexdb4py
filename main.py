@@ -2,17 +2,20 @@
 import os.path
 import tkinter as tk
 from tkinter import ttk
-from tkinter.constants import END, BOTTOM, HORIZONTAL, VERTICAL, RIGHT, X, Y, S
+from tkinter.constants import END, BOTTOM, HORIZONTAL, VERTICAL, RIGHT, X, Y
 from tkinter.messagebox import *
 
 import pymysql
 from PIL import Image, ImageTk
 
+from component.Table import Table
+
 # -D 文件夹打包
 # -F 单文件打包
 # -w 不显示命令行
 # --noconsole 不显示console
-# pyinstaller -D -y -w --noconsole --name alexkit main.py
+
+# pyinstaller -D -y -w --noconsole -i icon/logo.png --name alexdb main.py && cp -r icon/ dist/alexdb.app/Contents/MacOS/icon
 
 root = tk.Tk()
 gui_width = 960
@@ -56,10 +59,12 @@ db_table_list = {}
 # 当前table包含的column_list
 table_column_list = {}
 
+# 当前执行文件路径
+cur_path = os.path.dirname(os.path.realpath(__file__))
 # icon
-icon_mysql = ImageTk.PhotoImage(Image.open('./icon/mysql.png').resize((16, 16)))
-icon_database = ImageTk.PhotoImage(Image.open('./icon/database.png').resize((12, 16)))
-icon_table = ImageTk.PhotoImage(Image.open('./icon/table.png').resize((13, 13)))
+icon_mysql = ImageTk.PhotoImage(Image.open('{path}/icon/mysql.png'.format(path=cur_path)).resize((16, 16)))
+icon_database = ImageTk.PhotoImage(Image.open('{path}/icon/database.png'.format(path=cur_path)).resize((12, 16)))
+icon_table = ImageTk.PhotoImage(Image.open('{path}/icon/table.png'.format(path=cur_path)).resize((13, 13)))
 
 
 # 渲染主窗体
@@ -78,7 +83,7 @@ def render_top_func_btn():
     new_conn_btn = tk.Button(master=root, text="new connection", command=render_new_conn)
     new_conn_btn.place(x=16, y=8)
 
-    new_query_btn = tk.Button(master=root, text="new connection")
+    new_query_btn = tk.Button(master=root, text="new query")
     new_query_btn.place(x=160, y=8)
 
 
@@ -236,7 +241,7 @@ def double_click_conf_name(event):
         db_data = cursor.fetchall()
         parent = conn_tree_conf_dict.get(clicked_item_name)
         db_list = []
-        print(conf_db_list)
+
         # 追加database到父节点
         for db in db_data:
             if len(conf_db_list) == 0 or db[0] not in conf_db_list[clicked_item_name]:
@@ -250,9 +255,12 @@ def double_click_conf_name(event):
 
         if len(db_list) > 0:
             conf_db_list[clicked_item_name] = db_list
+
         # table
     elif level == '2':
+        global current_selected_db
         current_selected_db = clicked_item_name
+        print(current_selected_db)
         db = pymysql.connect(host=db_conf_dict.get('url'),
                              port=int(db_conf_dict.get('port')),
                              user=db_conf_dict.get('username'),
@@ -265,8 +273,11 @@ def double_click_conf_name(event):
         parent = conn_tree_db_dict.get(current_selected_db)
         table_list = []
         global icon_table
+        print(db_table_list)
         for table in table_data:
-            if len(db_table_list) == 0 or table[0] not in db_table_list.get(current_selected_db):
+            if len(db_table_list) == 0 or (
+                    current_selected_db not in db_table_list.keys() and table[0] not in db_table_list.get(
+                current_selected_db)):
                 table_item = conn_tree.insert(parent=parent,
                                               index=END,
                                               text=table[0],
@@ -276,6 +287,27 @@ def double_click_conf_name(event):
                 table_list.append(table[0])
         if len(table_list) > 0:
             db_table_list[current_selected_db] = table_list
+
+    elif level == '3':
+
+        db = pymysql.connect(host=db_conf_dict.get('url'),
+                             port=int(db_conf_dict.get('port')),
+                             user=db_conf_dict.get('username'),
+                             password=db_conf_dict.get('password'),
+                             database=current_selected_db)
+        cursor = db.cursor()
+        # 先获取表字段
+        cursor.execute(
+            "select COLUMN_NAME from information_schema.COLUMNS where table_name = '{table}';".format(table=clicked_item_name))
+        column_data = cursor.fetchall()
+        # 当前表字段
+        columns = []
+        for item in column_data:
+            columns.append(item[0])
+        # 再获取表行数据
+        cursor.execute("select * from {table};".format(table=clicked_item_name))
+        table_rows_data = cursor.fetchall()
+        Table(root, columns, table_rows_data).get_instance()
 
 
 # 读取conn信息

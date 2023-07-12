@@ -177,7 +177,10 @@ def save_new_conn(cur_view, name, url, port, username, password):
             conf_fd.close()
             cur_view.destroy()
             # 同时追加连接到treeview去
-            conn_tree.insert(parent="", index=END, text=name, values=1)
+            new_tree_item = conn_tree.insert(parent="", index=END, text=name, image=icon_mysql, values=1)
+            # 绑定一个双击事件
+            conn_tree.bind("<Double-1>", double_click_conf_name)
+            conn_tree_conf_dict[name] = new_tree_item
             root.update()
 
 
@@ -209,6 +212,7 @@ def render_conn_tree():
     conn_tree.place(x=16, y=48, relwidth=0.22, relheight=0.9)
 
 
+
 # 双击连接名
 def double_click_conf_name(event):
     global current_selected_conn_file
@@ -232,7 +236,7 @@ def double_click_conf_name(event):
         # 追加database到父节点
         if db_data is not None:
             for db in db_data:
-                if len(conf_db_list) == 0 or db[0] not in conf_db_list[clicked_item_name]:
+                if len(conf_db_list) == 0 or db[0] not in conf_db_list.keys():
                     db_item = conn_tree.insert(parent=parent,
                                                index=END,
                                                text=db[0],

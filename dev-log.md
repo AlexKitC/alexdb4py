@@ -3,6 +3,9 @@
 1. The tree is abstracted
 2. more function of mysql is added
 3. add sql connection exception catch and tips
+4. fix new connection without icon
+5. fix new connetion tree item event bind
+6. fix db change bug
 
 ###### 2023-07-11:
 

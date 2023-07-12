@@ -1,13 +1,13 @@
 #!/usr/local/bin/python3
 import os.path
 import tkinter as tk
-from tkinter import ttk
-from tkinter.constants import END, BOTTOM, HORIZONTAL, VERTICAL, RIGHT, X, Y
+from tkinter.constants import END
 from tkinter.messagebox import *
 
 from PIL import Image, ImageTk
 
 from component.Table import Table
+from component.Tree import Tree
 from util.Conf import Conf
 from util.Mysql import Mysql
 
@@ -31,15 +31,7 @@ gui_offset = '{w}x{h}+{x}+{y}'.format(w=gui_width, h=gui_height, x=gui_offset_x,
 new_conn_offset = '{w}x{h}+{x}+{y}'.format(w=640, h=480, x=gui_offset_x + 160, y=gui_offset_y + 80)
 
 # 连接信息的tree
-conn_tree = ttk.Treeview(master=root)
-# 连接信息tree的滚动条
-scroll_bar_tree_x = tk.Scrollbar(master=conn_tree, orient=HORIZONTAL, command=conn_tree.xview)
-conn_tree.configure(xscrollcommand=scroll_bar_tree_x.set)
-scroll_bar_tree_x.pack(side=BOTTOM, fill=X)
-
-scroll_bar_tree_y = tk.Scrollbar(master=conn_tree, orient=VERTICAL, command=conn_tree.yview)
-conn_tree.configure(yscrollcommand=scroll_bar_tree_y.set)
-scroll_bar_tree_y.pack(side=RIGHT, fill=Y)
+conn_tree = Tree(root).get_instance()
 
 # 连接的tree conf级别 item的映射  conf_name->conf_item
 conn_tree_conf_dict = {}
@@ -173,7 +165,8 @@ def save_new_conn(cur_view, name, url, port, username, password):
                 cur_view.destroy()
         else:
             # 不存在则存储配置文件
-            conf_fd = open(file='{path}/{name}.conf'.format(path=os.path.dirname(os.path.realpath(__file__)), name=name), mode='x')
+            conf_fd = open(
+                file='{path}/{name}.conf'.format(path=os.path.dirname(os.path.realpath(__file__)), name=name), mode='x')
             conf_fd.write("{name}\r\n{url}\r\n{port}\r\n{username}\r\n{password}".format(
                 name=name,
                 url=url,
@@ -237,18 +230,19 @@ def double_click_conf_name(event):
         db_list = []
 
         # 追加database到父节点
-        for db in db_data:
-            if len(conf_db_list) == 0 or db[0] not in conf_db_list[clicked_item_name]:
-                db_item = conn_tree.insert(parent=parent,
-                                           index=END,
-                                           text=db[0],
-                                           image=icon_database,
-                                           values=2)
-                conn_tree_db_dict[db[0]] = db_item
-                db_list.append(db[0])
+        if db_data is not None:
+            for db in db_data:
+                if len(conf_db_list) == 0 or db[0] not in conf_db_list[clicked_item_name]:
+                    db_item = conn_tree.insert(parent=parent,
+                                               index=END,
+                                               text=db[0],
+                                               image=icon_database,
+                                               values=2)
+                    conn_tree_db_dict[db[0]] = db_item
+                    db_list.append(db[0])
 
-        if len(db_list) > 0:
-            conf_db_list[clicked_item_name] = db_list
+            if len(db_list) > 0:
+                conf_db_list[clicked_item_name] = db_list
 
         # table
     elif level == '2':
@@ -275,6 +269,7 @@ def double_click_conf_name(event):
             db_table_list[current_selected_db] = table_list
 
     elif level == '3':
+
         column_data = Mysql(db_conf_dict, current_selected_db).show_columns(clicked_item_name)
         # 当前表字段
         columns = []

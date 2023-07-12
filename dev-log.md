@@ -1,3 +1,9 @@
+###### 2023-07-12:
+
+1. The tree is abstracted
+2. more function of mysql is added
+3. add sql connection exception catch and tips
+
 ###### 2023-07-11:
 
 1. finish table columns and data rows render

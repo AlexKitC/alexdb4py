@@ -21,6 +21,7 @@ class Table:
         for item in data_list:
             self.data_table.insert(parent='', index=END, values=item)
 
+        # 表格超出可视区域的滚动条绑定
         scroll_bar_tree_x = ttk.Scrollbar(master=self.data_table, orient=HORIZONTAL, command=self.data_table.xview)
         self.data_table.configure(xscrollcommand=scroll_bar_tree_x.set)
         scroll_bar_tree_x.pack(side=BOTTOM, fill=X)

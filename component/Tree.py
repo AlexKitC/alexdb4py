@@ -1,7 +1,5 @@
 from tkinter import ttk, HORIZONTAL, VERTICAL, BOTTOM, RIGHT, X, Y
 
-from tqdm import tk
-
 
 class Tree:
     def __init__(self, root):

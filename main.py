@@ -259,9 +259,9 @@ def double_click_conf_name(event):
         global icon_table
 
         for table in table_data:
+
             if len(db_table_list) == 0 or (
-                    current_selected_db not in db_table_list.keys() and table[0] not in db_table_list.get(
-                current_selected_db)):
+                    current_selected_db not in db_table_list.keys()):
                 table_item = conn_tree.insert(parent=parent,
                                               index=END,
                                               text=table[0],

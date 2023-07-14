@@ -170,7 +170,6 @@ def save_new_conn(cur_view, name, url, port, username, password):
             # 绑定一个双击事件
             conn_tree.bind("<Double-1>", double_click_conf_name)
             conn_tree_conf_dict[name] = new_tree_item
-            # 绑定一个选中事件
 
             root.update()
 

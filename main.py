@@ -60,17 +60,6 @@ icon_database = ImageTk.PhotoImage(Image.open('{path}/icon/database.png'.format(
 icon_table = ImageTk.PhotoImage(Image.open('{path}/icon/table.png'.format(path=cur_path)).resize((13, 13)))
 
 
-# 渲染主窗体
-def render_gui(name):
-    root.title(name)
-    root.geometry(gui_offset)
-
-    # 渲染顶部功能按钮
-    render_top_func_btn()
-
-    root.mainloop()
-
-
 # 渲染顶部功能按钮
 def render_top_func_btn():
     new_conn_btn = tk.Button(master=root, text="new connection", command=render_new_conn)
@@ -212,7 +201,6 @@ def render_conn_tree():
     conn_tree.place(x=16, y=48, relwidth=0.22, relheight=0.9)
 
 
-
 # 双击连接名
 def double_click_conf_name(event):
     global current_selected_conn_file
@@ -285,8 +273,29 @@ def double_click_conf_name(event):
         Table(root, columns, table_rows_data).get_instance()
 
 
+def render_gui():
+    root.title('alexdb')
+    root.geometry(gui_offset)
+
+    # 渲染顶部功能按钮
+    render_top_func_btn()
+    # 渲染连接tree
+    render_conn_tree()
+
+    # 进入主循环
+    root.mainloop()
+
+
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        # 渲染窗体
+        render_gui()
+
+    # 渲染主窗体
+
+
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
-    render_conn_tree()
-    # 渲染窗体
-    render_gui("alexdb")
+    App()

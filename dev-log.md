@@ -1,3 +1,7 @@
+###### 2023-07-14:
+
+1. code style more oop
+
 ###### 2023-07-12:
 
 1. The tree is abstracted

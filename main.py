@@ -286,10 +286,8 @@ def render_gui():
     root.mainloop()
 
 
-class App(tk.Tk):
+class App():
     def __init__(self):
-        super().__init__()
-
         # 渲染窗体
         render_gui()
 

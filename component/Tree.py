@@ -16,5 +16,11 @@ class Tree:
         self.conn_tree.configure(yscrollcommand=scroll_bar_tree_y.set)
         scroll_bar_tree_y.pack(side=RIGHT, fill=Y)
 
+        self.conn_tree.bind("<<TreeviewSelect>>", self.tree_item_clicked)
+
+    def tree_item_clicked(self, event):
+        for item in self.conn_tree.selection():
+            print(item)
+
     def get_instance(self):
         return self.conn_tree
